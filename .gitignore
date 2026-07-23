@@ -1,0 +1,10 @@
+﻿.venv
+node_modules
+dist
+__pycache__
+*.pyc
+.pytest_cache
+frontend/node_modules
+frontend/dist
+backend/.venv
+uptime.db
