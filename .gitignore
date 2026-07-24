@@ -8,3 +8,10 @@ frontend/node_modules
 frontend/dist
 backend/.venv
 uptime.db
+test.db
+.env
+
+# Keep environment-specific configuration files tracked in git
+!.env.development
+!.env.staging
+!.env.production

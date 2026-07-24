@@ -1,0 +1,59 @@
+name: Deploy to Render - Staging
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+jobs:
+  deploy-backend-staging:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy Backend to Render
+        run: |
+          curl https://api.render.com/deploy/srv-${{ secrets.RENDER_STAGING_BACKEND_SERVICE_ID }}?key=${{ secrets.RENDER_DEPLOY_KEY }}
+        continue-on-error: true
+      
+      - name: Notify Deployment
+        run: |
+          echo "Backend staging deployment triggered"
+
+  deploy-frontend-staging:
+    runs-on: ubuntu-latest
+    needs: deploy-backend-staging
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy Frontend to Render
+        run: |
+          curl https://api.render.com/deploy/srv-${{ secrets.RENDER_STAGING_FRONTEND_SERVICE_ID }}?key=${{ secrets.RENDER_DEPLOY_KEY }}
+        continue-on-error: true
+      
+      - name: Notify Deployment
+        run: |
+          echo "Frontend staging deployment triggered"
+      
+      - name: Slack Notification
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Staging Deployment Complete",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "✅ *Staging Deployment*\nBackend & Frontend deployed to staging\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

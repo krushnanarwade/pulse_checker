@@ -1,6 +1,12 @@
+import sys
+from pathlib import Path
+
+# Add parent directory to path to allow running from any location
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import settings
+from app.core.settings import settings
 from app.database import engine, Base
 from app.routers import auth, websites, checks, alerts
 from app.services.scheduler import start_scheduler, stop_scheduler
