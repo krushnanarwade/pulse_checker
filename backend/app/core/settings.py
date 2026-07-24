@@ -11,7 +11,7 @@ class Environment(str, Enum):
 
 def _get_env_file():
     """Determine which .env file to load based on ENVIRONMENT variable."""
-    environment = os.getenv("ENVIRONMENT", "development").lower()
+    environment = os.getenv("ENVIRONMENT", "development").strip().lower()
     env_file = f".env.{environment}"
     
     # If environment-specific file exists, use it; otherwise use .env
@@ -85,6 +85,7 @@ class Settings(BaseSettings):
         return self.ENVIRONMENT == Environment.DEVELOPMENT
 
 
-# Load settings based on ENVIRONMENT variable
 environment = os.getenv("ENVIRONMENT", "development")
+# Load settings based on ENVIRONMENT variable
+environment = os.getenv("ENVIRONMENT", "development").strip().lower()
 settings = Settings(ENVIRONMENT=environment)
