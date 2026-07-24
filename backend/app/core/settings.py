@@ -9,6 +9,17 @@ class Environment(str, Enum):
     PRODUCTION = "production"
 
 
+def _get_env_file():
+    """Determine which .env file to load based on ENVIRONMENT variable."""
+    environment = os.getenv("ENVIRONMENT", "development").lower()
+    env_file = f".env.{environment}"
+    
+    # If environment-specific file exists, use it; otherwise use .env
+    if os.path.exists(env_file):
+        return env_file
+    return ".env"
+
+
 class Settings(BaseSettings):
     """
     Application settings with environment-based configuration.
@@ -57,22 +68,9 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         case_sensitive=True,
-        env_file=".env",
-        # Also load .env.{ENVIRONMENT}
+        env_file=_get_env_file(),
         extra="allow",
     )
-
-    def __init__(self, **data):
-        super().__init__(**data)
-        # Load environment-specific .env file if it exists
-        env_file_path = f".env.{self.ENVIRONMENT.value}"
-        if os.path.exists(env_file_path):
-            self.model_config["env_file"] = env_file_path
-            # Re-load with environment-specific file
-            self.__class__.model_validate(
-                {**os.environ},
-                from_attributes=True,
-            )
 
     @property
     def is_production(self) -> bool:
